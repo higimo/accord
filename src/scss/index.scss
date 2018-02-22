@@ -1,0 +1,56 @@
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body {
+	font: 400 12pt Tahoma, Sans-Serif;
+	color: $black;
+	line-height: 1.4;
+	background: #eee;
+}
+
+a {
+	color: $orange;
+	border-bottom-color: rgba($orange, $mainOpacity);
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	text-decoration: none;
+	display: inline;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin: 0 0 1em 0;
+	font: 400 18pt Tahoma, Sans-Serif;
+	line-height: 1.6;
+	color: $grey;
+}
+
+h1 { font-size: 2.2rem; }
+h2 { font-size: 2.0rem; }
+h3 { font-size: 1.8rem; }
+h4 { font-size: 1.6rem; }
+h5 { font-size: 1.4rem; }
+h6 { font-size: 1.2rem; }
+
+.home {
+	padding: 20px 20px;
+	min-height: 100%;
+	width: 100%;
+}
+
+.alf {
+	margin-top: 20px;
+}
+
+.profile {
+	padding: 20px 20px;
+	min-height: 100%;
+	width: 100%;
+}

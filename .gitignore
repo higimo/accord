@@ -1,0 +1,6 @@
+/base/*
+/www/bundle*
+/www/index.html*
+/front/node_modules/*
+/front/.setting.js
+.htaccess

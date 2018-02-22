@@ -1,0 +1,24 @@
+$grid-gutter-width : 30px;
+$grid-columns      : 24 !default;
+
+$screen-xs-max : 544px;
+
+$screen-sm-min : 544px;
+$container-sm  : 544px;
+$screen-sm-max : 768px;
+
+$screen-md-min : 768px;
+$container-md  : 768px;
+$screen-md-max : 1200px;
+
+$screen-lg-min : 1200px;
+$container-lg  : 1200px;
+
+$white  : #fff;
+$black  : #000;
+$blue   : #203852;
+$grey   : grayscale(lighten($blue, 20%));
+$orange : #ff8e13;
+
+$mainOpacity: 0.35;
+$standardMargin: 15px;
