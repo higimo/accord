@@ -24,7 +24,7 @@ class IndexPage extends React.Component {
 	}
 
 	render() {
-		this.state.list.sort((a, b) => a.name > b.name)
+		this.state.list.sort((a, b) => a.name.localeCompare(b.name))
 		let alf = ''
 		return (
 			<div className="home">
