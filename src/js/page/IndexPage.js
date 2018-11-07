@@ -2,10 +2,6 @@ import React from 'react'
 
 import Link from 'react-router-dom/Link'
 
-import Col       from 'als-react-grid/Col'
-import Container from 'als-react-grid/Container'
-import Row       from 'als-react-grid/Row'
-
 class IndexPage extends React.Component {
 	constructor(props) {
 		super(props)
@@ -23,11 +19,8 @@ class IndexPage extends React.Component {
 				self.setState({
 					list: json
 				})
+				console.log(json)
 			})
-	}
-
-	getAccord(event) {
-		console.log(event.target.dataset.href)
 	}
 
 	render() {

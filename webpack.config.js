@@ -1,82 +1,79 @@
-const path                    = require('path')
-const ExtractTextPlugin       = require('extract-text-webpack-plugin')
-const webpack                 = require('webpack')
-const extractCSS              = new ExtractTextPlugin('bundle.css', {allChunks: true})
-const HtmlWebpackPlugin       = require('html-webpack-plugin')
+const path       = require('path')
+const webpack    = require('webpack')
+const extractCSS = new (require('extract-text-webpack-plugin'))('bundle.css', {allChunks: true})
 
-const NODE_ENV = process.env.NODE_ENV || 'prod',
-	plugins    = [],
-	rules      = []
+let NODE_ENV = process.env.NODE_ENV === 'development' ? process.env.NODE_ENV : 'production',
+	isAnal = process.env.NODE_ENV === 'anal'
+	plugins = [],
+	rules = []
 
 console.log(NODE_ENV + ' mode.')
 
 plugins.push(extractCSS)
-plugins.push(new HtmlWebpackPlugin({
-	template: './src/html/index.html',
-	inject: 'body',
-	title: 'Новый проект на React',
-	minify: {
-		html5           : true,
-		useShortDoctype : true,
-	},
-	hash: true
+plugins.push(new webpack.DefinePlugin({
+	DEV_MODE: NODE_ENV !== 'production',
+	'process.env.NODE_ENV': JSON.stringify(NODE_ENV)
 }))
 
-if (NODE_ENV === 'anal') {
-	const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
-	plugins.push(new BundleAnalyzerPlugin({}))
+plugins.push(new webpack.ProvidePlugin({
+	'React': 'react'
+}))
+
+if (isAnal) {
+	plugins.push(new (require('webpack-bundle-analyzer')).BundleAnalyzerPlugin({}))
 }
 
-if (NODE_ENV === 'prod') {
-	const UglifyJSPlugin     = require('uglifyjs-webpack-plugin')
-	const WebpackShellPlugin = require('webpack-shell-plugin')
+if (NODE_ENV === 'production' || NODE_ENV === 'development') {
+	plugins.push(new (require('html-webpack-plugin'))({
+		templateParameters: {
+			title: 'Аккорды, которые я играю',
+			mode: JSON.stringify(NODE_ENV)
+		},
+		template: './src/html/index.html',
+		inject: 'body',
+		minify: {
+			html5           : true,
+			useShortDoctype : true,
+		},
+		hash: true
+	}))
+}
 
+if (NODE_ENV === 'production') {
 	plugins.push(new webpack.optimize.OccurrenceOrderPlugin())
 	plugins.push(new webpack.DefinePlugin({
 		'process.env': {
 			NODE_ENV: JSON.stringify('production')
 		}
 	}))
-	plugins.push(new webpack.optimize.UglifyJsPlugin({
-		parallel: 4,
-		sourceMap: true,
-		compress: {
-			sequences    : true,
-			booleans     : true,
-			loops        : true,
-			unused       : true,
-			warnings     : false,
-			drop_console : true,
-		}
-	}))
-	plugins.push(new WebpackShellPlugin({
-		onBuildEnd: [
-			'npm run deploy'
-		]
-	}))
+	if (!isAnal) {
+		// plugins.push(new (require('webpack-shell-plugin'))({
+		// 	onBuildEnd: [
+		// 		'npm run deploy'
+		// 	]
+		// }))
+	}
 }
 
 rules.push({
-	test    : /\.js$/,
-	exclude : [
+	test: /\.js$/,
+	exclude: [
 		path.resolve(__dirname, 'node_modules'),
 	],
-	include: [
-		path.resolve(__dirname, 'src')
-	],
-	use     : {
-		loader  : 'babel-loader',
-		options : {
-			presets : [
+	use: {
+		loader: 'babel-loader',
+		options: {
+			presets: [
+				'react',
 				[
 					'es2015',
 					{
 						'modules': false
 					}
 				],
-				'react',
+				'stage-2',
 			],
-			plugins : [
+			plugins: [
 				[
 					'transform-react-statements',
 					{
@@ -102,72 +99,106 @@ rules.push({
 				loader: 'css-loader',
 				options: {
 					sourceMap: true,
-					minimize: true,
-					url: false,
-					import: true,
+					minimize: NODE_ENV === 'production'
+				}
+			},
+			{
+				loader: 'postcss-loader',
+				options: {
+					sourceMap: true,
+					plugins: [
+						require('autoprefixer'),
+						require('postcss-easing-gradients'),
+					]
 				}
 			},
 			{
 				loader: 'sass-loader',
 				options: {
 					sourceMap: true,
-				}
-			},
-			{
-				loader: 'postcss-loader',
-				options: {
-					plugins: [
-						// require('postcss-color-function'),
-						// require('postcss-rgba-hex'),
-						// require('postcss-easing-gradients'),
-						// require('autoprefixer'),
-					],
+					outputStyle: (NODE_ENV === 'production' ? 'compressed' : 'expanded'),
+					precision: 4,
 				}
 			},
 		]
 	})
 })
 
-rules.push({
-	test: /\.css$/,
-	loader: 'css-loader',
-	options: {
-		minimize: true
-	}
-})
-
 module.exports = {
-	devtool          : NODE_ENV === 'dev' ? 'eval' : false,
-	watch            : NODE_ENV === 'dev',
-	watchOptions     : {
-		aggregateTimeout : 150,
+	mode: NODE_ENV,
+	devtool: NODE_ENV === 'development' ? 'eval' : false,
+	optimization: {
+		namedModules: NODE_ENV === 'development',
+		nodeEnv: NODE_ENV,
+		minimizer: [
+			new (require('uglifyjs-webpack-plugin'))({
+				parallel: 4,
+				sourceMap: true,
+				uglifyOptions: {
+					compress: {
+						sequences    : true,
+						booleans     : true,
+						loops        : true,
+						unused       : true,
+						warnings     : false,
+						drop_console : true,
+					}
+				}
+			})
+		],
+		splitChunks: {
+			chunks: 'async',
+			cacheGroups: {
+				vendors: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'vendors',
+					enforce: true,
+					chunks: 'all'
+				},
+				style: {
+					test: /[\s\S]+.scss$/,
+					name: 'style',
+					enforce: true,
+					chunks: 'all'
+				},
+				default: {
+					minChunks: 2,
+					priority: -20,
+					reuseExistingChunk: true
+				}
+			}
+		}
 	},
-	entry            : {
-		'bundle.js'      : './src/index.js'
+	watchOptions: {
+		aggregateTimeout : 200,
 	},
-	output           : {
-		path             : path.resolve(__dirname, 'www/'),
-		filename         : 'bundle.js'
+	entry: {
+		'bundle': './src/index.js',
+	},
+	output: {
+		path: path.resolve(__dirname, './www/'),
+		filename: '[name].js',
+		publicPath: '/'
 	},
 	module: {
 		rules,
 	},
 	plugins,
-	devServer   : {
-		contentBase        : path.join(__dirname, '/www/'),
+	devServer: {
+		contentBase        : path.join(__dirname, './www/'),
 		compress           : true,
 		port               : 9000,
 		historyApiFallback : true,
 		proxy: {
 			'/api': {
-				target: 'http://test.design.ru:80/api/',
+				target: 'http://rassvet.dev.design.ru:80/api/',
 				pathRewrite: {
 					'^/api' : ''
 				},
 				changeOrigin: true
 			},
 			'/upload': {
-				target: 'http://test.design.ru:80/upload/',
+				target: 'http://rassvet.dev.design.ru:80/upload/',
 				pathRewrite: {
 					'^/upload' : ''
 				},
@@ -202,5 +233,8 @@ module.exports = {
 			version         : true,
 			warnings        : true,
 		}
+	},
+	performance: {
+		hints: false
 	}
-};
+}

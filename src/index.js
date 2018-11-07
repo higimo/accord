@@ -3,9 +3,9 @@ import ReactDOM        from 'react-dom'
 import HashRouter      from 'react-router-dom/HashRouter'
 import RouterSwitch    from 'react-router-dom/Switch'
 
-import IndexPage from './jsx/page/IndexPage'
-import SongPage  from './jsx/page/SongPage'
-import NotFound  from './jsx/page/NotFound'
+import IndexPage from './js/page/IndexPage'
+import SongPage  from './js/page/SongPage'
+import NotFound  from './js/page/NotFound'
 
 import { Route } from 'react-router'
 

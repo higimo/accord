@@ -2,10 +2,6 @@ import React from 'react'
 
 import Link from 'react-router-dom/Link'
 
-import Col       from 'als-react-grid/Col'
-import Container from 'als-react-grid/Container'
-import Row       from 'als-react-grid/Row'
-
 class SongPage extends React.Component {
 	constructor(props) {
 		super(props)
